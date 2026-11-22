@@ -79,8 +79,6 @@ public class CrackedCommand extends ToggleCommand {
                 plugin.getScheduler().getSyncExecutor().execute(() -> {
                     if (plugin.getCore().getConfig().getBoolean("kick-toggle", true)) {
                         player.kickPlayer(plugin.getCore().getMessage("remove-premium"));
-                    } else {
-                        plugin.getCore().sendLocaleMessage("add-premium", sender);
                     }
                 });
             });
