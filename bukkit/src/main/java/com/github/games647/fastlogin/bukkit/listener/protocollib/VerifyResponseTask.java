@@ -50,6 +50,7 @@ import com.github.games647.fastlogin.bukkit.BukkitLoginSession;
 import com.github.games647.fastlogin.bukkit.FastLoginBukkit;
 import com.github.games647.fastlogin.bukkit.InetUtils;
 import com.github.games647.fastlogin.bukkit.listener.protocollib.packet.ClientPublicKey;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import javax.crypto.Cipher;
@@ -205,6 +206,9 @@ public class VerifyResponseTask implements Runnable {
         if (plugin.getConfig().getBoolean("premiumUuid") && premiumUUID != null) {
             try {
                 Object networkManager = getNetworkManager();
+                if (networkManager == null) {
+                    return;
+                }
                 //https://github.com/bergerkiller/CraftSource/blob/master/net.minecraft.server/NetworkManager.java#L69
 
                 Class<?> managerClass = networkManager.getClass();
@@ -221,6 +225,9 @@ public class VerifyResponseTask implements Runnable {
         NettyChannelInjector injectorContainer = (NettyChannelInjector) Accessors.getMethodAccessorOrNull(
                 TemporaryPlayerFactory.class, "getInjectorFromPlayer", Player.class
         ).invoke(null, player);
+        if (injectorContainer == null) {
+            return null;
+        }
 
         FieldAccessor accessor = Accessors.getFieldAccessorOrNull(
                 NettyChannelInjector.class, "networkManager", Object.class
@@ -254,6 +261,10 @@ public class VerifyResponseTask implements Runnable {
 
         try {
             Object networkManager = this.getNetworkManager();
+            if (networkManager == null) {
+                plugin.getLog().warn("Connection of {} already closed, skipping onlinemode encryption", player);
+                return false;
+            }
 
             // If cipherMethod is null - use old encryption (pre MC 1.16.4), otherwise use the new cipher one
             if (encryptKeyMethod != null) {
@@ -287,7 +298,9 @@ public class VerifyResponseTask implements Runnable {
         //the normal event.getPlayer.kickPlayer(String) method does only work at play state
         ProtocolLibrary.getProtocolManager().sendServerPacket(player, kickPacket);
         //tell the server that we want to close the connection
-        player.kickPlayer("Disconnect");
+        if (plugin.isEnabled()) {
+            Bukkit.getScheduler().runTask(plugin, () -> player.kickPlayer("Disconnect"));
+        }
     }
 
     //fake a new login packet in order to let the server handle all the other stuff
