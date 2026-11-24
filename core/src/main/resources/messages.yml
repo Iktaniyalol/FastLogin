@@ -27,6 +27,9 @@ switch-kick-message: '&4Only paid Minecraft allowed accounts are allowed to join
 # GameProfile activated premium login in order to skip offline authentication
 add-premium: '&2Added to the list of premium players'
 
+# GameProfile activated premium login in order to skip offline authentication, bedrock license binding already exists
+add-premium-bedrock-bound: '&2Added to the list of premium players. The Bedrock Edition license binding is kept unchanged.'
+
 # GameProfile activated premium login in order to skip offline authentication
 add-premium-other: '&2Player has been added to the premium list'
 

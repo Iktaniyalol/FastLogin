@@ -31,9 +31,12 @@ import com.github.games647.fastlogin.core.shared.event.FastLoginPremiumToggleEve
 import com.github.games647.fastlogin.core.storage.StoredProfile;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -94,7 +97,8 @@ public class PremiumCommand extends ToggleCommand {
                     if (plugin.getCore().getConfig().getBoolean("kick-toggle", true)) {
                         player.kickPlayer(plugin.getCore().getMessage("remove-premium"));
                     } else {
-                        plugin.getCore().sendLocaleMessage("add-premium", sender);
+                        plugin.getCore().sendLocaleMessage(
+                                bedrockBound(sender.getName()) ? "add-premium-bedrock-bound" : "add-premium", sender);
                     }
                 });
             });
@@ -135,5 +139,13 @@ public class PremiumCommand extends ToggleCommand {
 
     private boolean forwardPremiumCommand(CommandSender sender, String target) {
         return forwardBungeeCommand(sender, target, true);
+    }
+
+    private boolean bedrockBound(String name) {
+        File players = new File(plugin.getDataFolder().getParentFile(), "Misc/players.yml");
+        if (!players.isFile()) {
+            return false;
+        }
+        return YamlConfiguration.loadConfiguration(players).contains("license." + name.toLowerCase(Locale.ROOT) + ".xuid");
     }
 }
